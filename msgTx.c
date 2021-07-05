@@ -10,7 +10,7 @@ int main(void)
     char buffer[BUFSIZ];
 
     // STEP 1. 메시지큐 생성
-    msgid = msgget((key_t)1234, 0666|IPC_CREAT);
+    msgid = msgget((key_t)0x1234, 0666|IPC_CREAT);
     // 메시지큐가 생성되지X
     if(msgid==-1)
     {
