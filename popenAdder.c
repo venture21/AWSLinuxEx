@@ -22,7 +22,7 @@ long adder(int sValue, int eValue)
     {
         result +=i;
     }
-    printf("result=%ld\n",result);
+    //printf("result=%ld\n",result);
 
     return result;
 }
