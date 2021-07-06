@@ -7,7 +7,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-#define MAX_TEXT 512
+#define MAX_TEXT 64
 
 struct my_msg_st
 {
