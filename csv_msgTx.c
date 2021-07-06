@@ -39,7 +39,7 @@ int main(void)
 
         // strtok : 문자열에서 ','를 기준으로 token으로 나누어준다.
         ptr = strtok(buff,",");
-        strcpy(&st.name, ptr);
+        strcpy(st.name, ptr);
         ptr = strtok(NULL,",");
         st.kor = atoi(ptr);
         ptr = strtok(NULL,",");
