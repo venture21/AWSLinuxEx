@@ -26,7 +26,8 @@ int main(void)
 
     // result.csv파일을 생성한다. write mode(text)
     FILE *fp = fopen("result.csv", "w");
-
+    fprintf(fp, "%s, %s, %s, %s, %s, %s, %s\n",
+        "name","kor","eng","math","scien","avg","total"); 
     while(running)
     {
 
