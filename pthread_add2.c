@@ -36,8 +36,6 @@ void* add_func(void* data)
 	pthread_t t_id; 
     value = ((struct value *)data);
 
-
-
 	for(i=value->start;i<value->end+1;i++)
 	{
 		value->result += i;
@@ -76,7 +74,7 @@ int main(int argc, char *argv[])
 	int err;
 	long result;
 	struct value *value1,*value2;
-    struct timeval UTCtime_s, UTCtime_e, UTCtime_r;
+    struct timeval UTCtime_s, UTCtime_e;
 
     if(argc!=4)
     {
