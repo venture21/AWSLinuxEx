@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 
     // STEP 1. socket()
     serv_sock=socket(PF_INET, SOCK_STREAM, 0);
+	printf("serv_sock=%d\n", serv_sock);
 
     // STEP 2. bind()
     memset(&serv_adr, 0, sizeof(serv_adr));
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
 			continue;
 		else
 			puts("new client connected...");
+			printf("clnt_sock=%d\n",clnt_sock);
 
         // 새로운 클라이언트가 접속 했다면
         // 클라이언트 하나당 프로세스 하나를 생성
@@ -95,6 +97,7 @@ int main(int argc, char *argv[])
         }
 		else
 			close(clnt_sock);
+			
     }
     // STEP 6. server close()
 	close(serv_sock);
