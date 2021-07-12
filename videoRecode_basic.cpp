@@ -10,9 +10,7 @@
 using namespace cv;
 using namespace std;
 
-// "202107121433.avi"
-#define OUTPUT_VIDEO_NAME "test.avi"
-
+#define VIDEO_WINDOW_NAME "record"
 char fileName[30];
 
 void makefileName(void)
@@ -35,7 +33,6 @@ void makefileName(void)
     //strftime(buf,sizeof(buf),"%a %m %e %H:%M:%S %Y", tm); // 사용자 정의 문자열 지정
     strftime(fileName,sizeof(fileName),"%Y%m%d%H%M.avi", tm); // 사용자 정의 문자열 지정
     printf("strftime: %s\n",fileName); 
-    //fileName => "202107121458.avi"
 }
 
 int main(int, char**)
@@ -47,7 +44,9 @@ int main(int, char**)
 
     int deviceID = 0;
     int apiID = cv::CAP_V4L2;
-
+    int exitFlag = 0;
+    int MaxFrame = 1780;
+    int frameCount;
     Mat frame;
     // STEP 1. 카메라 장치 열기 
     cap.open(deviceID, apiID);
@@ -60,7 +59,7 @@ int main(int, char**)
     //  라즈베리파이 카메라의 해상도를 1280X720으로 변경 
     //cap.set(CAP_PROP_FRAME_WIDTH, 320);
     //cap.set(CAP_PROP_FRAME_HEIGHT, 240);
-    cap.set(CAP_PROP_FPS,60);
+    //cap.set(CAP_PROP_FPS,30);
     // Video Recording
     //  현재 카메라에서 초당 몇 프레임으로 출력하고 있는가?
     float videoFPS = cap.get(CAP_PROP_FPS);
@@ -75,43 +74,51 @@ int main(int, char**)
     // 3rd : FPS
     // 4th : ImageSize,
     // 5th : isColor=True
-
-    makefileName();
-    writer.open(fileName, VideoWriter::fourcc('D','I','V','X'),
-    videoFPS, Size(videoWidth, videoHeight), true);
-
-    if (!writer.isOpened())
-    {
-        perror("Can't write video");
-        return -1;
-    }
-#define VIDEO_WINDOW_NAME "record"
-    namedWindow(VIDEO_WINDOW_NAME);
-
     while(1)
     {
-        // 카메라에서 매 프레임마다 이미지 읽기
-        cap.read(frame);
-        // check if we succeeded
-        if (frame.empty()) {
-            perror("ERROR! blank frame grabbed\n");
-            break;
-        }
+        // 시간정보를 읽어와서 파일명을 생성
+        // 전역변수 fileName에 저장
+        makefileName();
+        writer.open(fileName, VideoWriter::fourcc('D','I','V','X'),
+        videoFPS, Size(videoWidth, videoHeight), true);
 
-        // 읽어온 한 장의 프레임을  writer에 쓰기
-        writer << frame; // test.avi
-        imshow(VIDEO_WINDOW_NAME, frame);
-
-        // ESC=>27 'ESC' 키가 입력되면 종료 
-        if(waitKey(1000/videoFPS)==27)
+        if (!writer.isOpened())
         {
-            printf("Stop video record\n");
-            break;
+            perror("Can't write video");
+            return -1;
         }
+        frameCount =0;
+        namedWindow(VIDEO_WINDOW_NAME);
 
+        while(frameCount<MaxFrame)
+        {
+            // 카메라에서 매 프레임마다 이미지 읽기
+            cap.read(frame);
+            frameCount++;
+            // check if we succeeded
+            if (frame.empty()) {
+                perror("ERROR! blank frame grabbed\n");
+                break;
+            }
+
+            // 읽어온 한 장의 프레임을  writer에 쓰기
+            writer << frame; // test.avi
+            imshow(VIDEO_WINDOW_NAME, frame);
+
+            // ESC=>27 'ESC' 키가 입력되면 종료 
+            if(waitKey(1000/videoFPS)==27)
+            {
+                printf("Stop video record\n");
+                exitFlag = 1;
+                break;
+            }
+
+        }
+        writer.release();
+        if(exitFlag==1)
+            break;
     }
     cap.release();
-    writer.release();
     destroyWindow(VIDEO_WINDOW_NAME);
 
     return 0;
