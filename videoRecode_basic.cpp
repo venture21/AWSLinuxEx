@@ -13,6 +13,31 @@ using namespace std;
 // "202107121433.avi"
 #define OUTPUT_VIDEO_NAME "test.avi"
 
+char fileName[30];
+
+void makefileName(void)
+{
+    time_t UTCtime;
+    struct tm *tm;
+    // 사용자 문자열로 시간정보를 저장하기 위한 문자열 버퍼
+    char buf[BUFSIZ];
+    // 커널에서 시간 정보를 읽어서
+    // UTCtime변수에 넣어준다.
+    time(&UTCtime); // UTC 현재 시간 읽어오기
+    //printf("time : %u\n", (unsigned)UTCtime); // UTC 현재 시간 출력
+
+    tm = localtime(&UTCtime);
+    //printf("asctime : %s", asctime(tm)); // 현재의 시간을 tm 구조체를 이용해서 출력
+
+    // 1st : 우리가 만들 문자열 저장할 버퍼
+    // 2nd : 버퍼 사이즈
+    // 3rd : %a : 간단한 요일, %m :월, %e : 일, %H : 24시, %M :분, %S :초, %Y :년
+    //strftime(buf,sizeof(buf),"%a %m %e %H:%M:%S %Y", tm); // 사용자 정의 문자열 지정
+    strftime(fileName,sizeof(fileName),"%Y%m%d%H%M.avi", tm); // 사용자 정의 문자열 지정
+    printf("strftime: %s\n",fileName); 
+    //fileName => "202107121458.avi"
+}
+
 int main(int, char**)
 {
     // 1. VideoCapture("동영상파일의 경로")
@@ -35,7 +60,7 @@ int main(int, char**)
     //  라즈베리파이 카메라의 해상도를 1280X720으로 변경 
     //cap.set(CAP_PROP_FRAME_WIDTH, 320);
     //cap.set(CAP_PROP_FRAME_HEIGHT, 240);
-    cap.set(CAP_PROP_FPS,30);
+    cap.set(CAP_PROP_FPS,60);
     // Video Recording
     //  현재 카메라에서 초당 몇 프레임으로 출력하고 있는가?
     float videoFPS = cap.get(CAP_PROP_FPS);
@@ -50,7 +75,9 @@ int main(int, char**)
     // 3rd : FPS
     // 4th : ImageSize,
     // 5th : isColor=True
-    writer.open(OUTPUT_VIDEO_NAME, VideoWriter::fourcc('D','I','V','X'),
+
+    makefileName();
+    writer.open(fileName, VideoWriter::fourcc('D','I','V','X'),
     videoFPS, Size(videoWidth, videoHeight), true);
 
     if (!writer.isOpened())
@@ -83,6 +110,7 @@ int main(int, char**)
         }
 
     }
+    cap.release();
     writer.release();
     destroyWindow(VIDEO_WINDOW_NAME);
 
