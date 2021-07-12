@@ -83,13 +83,11 @@ int main(int argc, char *argv[])
         // 종료하게되면 알아서 스레드를 종료한다. (관리가 필요하지 않음.)
         pthread_detach(t_id);
 		printf("Connected client IP: %s \n", inet_ntoa(clnt_adr.sin_addr));
-        
-
-        // STEP 6.1 client close()
+    
     }
-
     // STEP 6.2 server close()
-
+	close(serv_sock);
+	return 0;
 
 }
 
@@ -119,6 +117,8 @@ void* handle_clnt(void* arg)
 	}
 	clnt_cnt--;
 	pthread_mutex_unlock(&mutx);
+    
+    // STEP 6.1 client close()
  	close(clnt_sock);
     // 현재의 스레드 함수는 리턴값을 사용하지 않음
 	return NULL;   
