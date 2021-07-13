@@ -64,12 +64,13 @@ int main(int, char**)
     int fd;
     int WRByte;
     char buff[200];
+    char filePath[100];
     Mat frame;
 
     // 로그파일을 기록하기 위해 파일열기
     fd = open("/home/pi/blackBox/blackbox.log",O_WRONLY | O_CREAT | O_TRUNC, 0644);
     getTime(LOG_TIME);
-    sprintf(buff, "%s blackbox log파일 저장을 시작합니다.",tBUF);
+    sprintf(buff, "%s blackbox log파일 저장을 시작합니다.\n",tBUF);
     WRByte = write(fd, buff, strlen(buff));
 
     // STEP 1. 카메라 장치 열기 
@@ -104,10 +105,12 @@ int main(int, char**)
         // 전역변수 fileName에 저장
         getTime(TIME_FILENAME);
         printf("FILENAME:%s\n",tBUF);
-        sprintf(buff, "/home/pi/blackBox/%s",tBUF);
-        writer.open(buff, VideoWriter::fourcc('D','I','V','X'),
+        sprintf(filePath, "/home/pi/blackBox/%s",tBUF);
+        writer.open(filePath, VideoWriter::fourcc('D','I','V','X'),
         videoFPS, Size(videoWidth, videoHeight), true);
-
+        getTime(LOG_TIME);
+        sprintf(buff, "%s %s 명으로 녹화를 시작합니다.\n",tBUF,filePath);
+        WRByte = write(fd, buff, strlen(buff));
         if (!writer.isOpened())
         {
             perror("Can't write video");
