@@ -6,6 +6,9 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 #include <stdio.h>
+#include <fcntl.h>   // O_WRONLY
+#include <unistd.h>  // write() ,read()
+
 
 using namespace cv;
 using namespace std;
@@ -47,7 +50,16 @@ int main(int, char**)
     int exitFlag = 0;
     int MaxFrame = 1780;
     int frameCount;
+    int fd;
+    int WRByte;
+    char buff[50];
     Mat frame;
+
+    // 로그파일을 기록하기 위해 파일열기
+    fd = open("/home/park/blackbox/blackbox.log",O_WRONLY | O_CREAT | O_EXCL, 0644);
+    sprintf(buff, "blackbox log파일 저장을 시작합니다.")
+    WRByte = write(fd, buff, strlen(buff));
+
     // STEP 1. 카메라 장치 열기 
     cap.open(deviceID, apiID);
 
