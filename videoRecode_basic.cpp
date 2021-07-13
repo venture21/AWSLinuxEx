@@ -16,12 +16,18 @@ using namespace std;
 #define VIDEO_WINDOW_NAME "record"
 char fileName[30];
 
-void makefileName(void)
+char tBUF[BUFSIZ];
+
+#define TIME_FILENAME 0
+#define FOLDER_NAME   1
+#define LOG_TIME      2
+
+void getTime(int ret_type)
 {
     time_t UTCtime;
     struct tm *tm;
     // 사용자 문자열로 시간정보를 저장하기 위한 문자열 버퍼
-    char buf[BUFSIZ];
+
     // 커널에서 시간 정보를 읽어서
     // UTCtime변수에 넣어준다.
     time(&UTCtime); // UTC 현재 시간 읽어오기
@@ -34,8 +40,13 @@ void makefileName(void)
     // 2nd : 버퍼 사이즈
     // 3rd : %a : 간단한 요일, %m :월, %e : 일, %H : 24시, %M :분, %S :초, %Y :년
     //strftime(buf,sizeof(buf),"%a %m %e %H:%M:%S %Y", tm); // 사용자 정의 문자열 지정
-    strftime(fileName,sizeof(fileName),"%Y%m%d%H%M.avi", tm); // 사용자 정의 문자열 지정
-    printf("strftime: %s\n",fileName); 
+    if (ret_type==TIME_FILENAME)
+        strftime(tBUF,sizeof(tBUF),"%Y%m%d%H%M%S.avi", tm);
+    else if(ret_type==FOLDER_NAME)
+        strftime(tBUF,sizeof(tBUF),"%Y%m%d%H", tm);
+    else if(ret_type==LOG_TIME)
+        strftime(tBUF,sizeof(tBUF),"[%Y-%m-%d %H:%M:%S]", tm);
+    //printf("strftime: %s\n",buf);
 }
 
 int main(int, char**)
@@ -56,8 +67,9 @@ int main(int, char**)
     Mat frame;
 
     // 로그파일을 기록하기 위해 파일열기
-    fd = open("/home/park/blackbox/blackbox.log",O_WRONLY | O_CREAT | O_EXCL, 0644);
-    sprintf(buff, "blackbox log파일 저장을 시작합니다.")
+    fd = open("/home/pi/blackBox/blackbox.log",O_WRONLY | O_CREAT | O_EXCL, 0644);
+    getTime(LOG_TIME);
+    sprintf(buff, "%s blackbox log파일 저장을 시작합니다.",tBUF);
     WRByte = write(fd, buff, strlen(buff));
 
     // STEP 1. 카메라 장치 열기 
@@ -71,7 +83,7 @@ int main(int, char**)
     //  라즈베리파이 카메라의 해상도를 1280X720으로 변경 
     //cap.set(CAP_PROP_FRAME_WIDTH, 320);
     //cap.set(CAP_PROP_FRAME_HEIGHT, 240);
-    //cap.set(CAP_PROP_FPS,30);
+    cap.set(CAP_PROP_FPS,30);
     // Video Recording
     //  현재 카메라에서 초당 몇 프레임으로 출력하고 있는가?
     float videoFPS = cap.get(CAP_PROP_FPS);
@@ -90,8 +102,9 @@ int main(int, char**)
     {
         // 시간정보를 읽어와서 파일명을 생성
         // 전역변수 fileName에 저장
-        makefileName();
-        writer.open(fileName, VideoWriter::fourcc('D','I','V','X'),
+        getTime(TIME_FILENAME);
+        printf("FILENAME:%s\n",tBUF);
+        writer.open("/home/pi/blackBox/test.avi", VideoWriter::fourcc('D','I','V','X'),
         videoFPS, Size(videoWidth, videoHeight), true);
 
         if (!writer.isOpened())
@@ -114,7 +127,7 @@ int main(int, char**)
             }
 
             // 읽어온 한 장의 프레임을  writer에 쓰기
-            writer << frame; // test.avi
+            //writer << frame; // test.avi
             imshow(VIDEO_WINDOW_NAME, frame);
 
             // ESC=>27 'ESC' 키가 입력되면 종료 
