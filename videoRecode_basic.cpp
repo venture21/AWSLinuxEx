@@ -16,7 +16,7 @@ using namespace std;
 #define VIDEO_WINDOW_NAME "record"
 char fileName[30];
 
-char tBUF[BUFSIZ];
+char tBUF[100];
 
 #define TIME_FILENAME 0
 #define FOLDER_NAME   1
@@ -63,11 +63,11 @@ int main(int, char**)
     int frameCount;
     int fd;
     int WRByte;
-    char buff[50];
+    char buff[200];
     Mat frame;
 
     // 로그파일을 기록하기 위해 파일열기
-    fd = open("/home/pi/blackBox/blackbox.log",O_WRONLY | O_CREAT | O_EXCL, 0644);
+    fd = open("/home/pi/blackBox/blackbox.log",O_WRONLY | O_CREAT | O_TRUNC, 0644);
     getTime(LOG_TIME);
     sprintf(buff, "%s blackbox log파일 저장을 시작합니다.",tBUF);
     WRByte = write(fd, buff, strlen(buff));
@@ -104,7 +104,8 @@ int main(int, char**)
         // 전역변수 fileName에 저장
         getTime(TIME_FILENAME);
         printf("FILENAME:%s\n",tBUF);
-        writer.open("/home/pi/blackBox/test.avi", VideoWriter::fourcc('D','I','V','X'),
+        sprintf(buff, "/home/pi/blackBox/%s",tBUF);
+        writer.open(buff, VideoWriter::fourcc('D','I','V','X'),
         videoFPS, Size(videoWidth, videoHeight), true);
 
         if (!writer.isOpened())
@@ -127,7 +128,7 @@ int main(int, char**)
             }
 
             // 읽어온 한 장의 프레임을  writer에 쓰기
-            //writer << frame; // test.avi
+            writer << frame; // test.avi
             imshow(VIDEO_WINDOW_NAME, frame);
 
             // ESC=>27 'ESC' 키가 입력되면 종료 
@@ -144,6 +145,7 @@ int main(int, char**)
             break;
     }
     cap.release();
+    close(fd);
     destroyWindow(VIDEO_WINDOW_NAME);
 
     return 0;
